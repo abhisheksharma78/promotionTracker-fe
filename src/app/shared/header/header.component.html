@@ -1,0 +1,30 @@
+<mat-toolbar color="primary">
+  <button mat-icon-button (click)="toggleSidenav.emit()">
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <span>Increment Tracker</span>
+  <span class="spacer"></span>
+
+  <ng-container *ngIf="currentUser$ | async as user; else loginBtn">
+    <button mat-button [matMenuTriggerFor]="userMenu" [disabled]="isLoading">
+      <mat-icon>account_circle</mat-icon>
+      {{ user.firstName }}
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="onLogout()" [disabled]="isLoading">
+        <mat-icon *ngIf="!isLoading">logout</mat-icon>
+        <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </ng-container>
+
+  <ng-template #loginBtn>
+    <button mat-button routerLink="/auth/login" [disabled]="isLoading">
+      <mat-icon>login</mat-icon>
+      Login
+    </button>
+  </ng-template>
+</mat-toolbar>

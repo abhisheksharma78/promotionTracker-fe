@@ -1,1 +1,61 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Import Angular Material theme
+@use '@angular/material' as mat;
+
+// Custom snackbar styles
+.success-snackbar {
+  background: #4caf50;
+  color: white;
+
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+.error-snackbar {
+  background: #f44336;
+  color: white;
+
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+// Global styles
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #fafafa;
+}
+
+// Utility classes
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+// Loading spinner overlay
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}

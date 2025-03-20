@@ -333,4 +333,12 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 
-<router-outlet />
+<ng-container *ngIf="(isAuthenticated$ | async); else loginPage">
+  <app-layout>
+    <router-outlet></router-outlet>
+  </app-layout>
+</ng-container>
+
+<ng-template #loginPage>
+  <router-outlet></router-outlet>
+</ng-template>

@@ -1,0 +1,47 @@
+<div class="dashboard-container">
+  <h1>Welcome, {{currentUser?.firstName}}</h1>
+
+  <div class="dashboard-stats">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Pending Appraisals</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{pendingAppraisals}}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card *ngIf="isAdminOrHR">
+      <mat-card-header>
+        <mat-card-title>Total Employees</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{totalEmployees}}</div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card *ngIf="isAdminOrHR">
+      <mat-card-header>
+        <mat-card-title>Pending Reviews</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-value">{{pendingReviews}}</div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" routerLink="/appraisal">
+        <mat-icon>assessment</mat-icon>
+        View Appraisals
+      </button>
+
+      <button mat-raised-button color="accent" *ngIf="isAdminOrHR" routerLink="/bonus">
+        <mat-icon>star</mat-icon>
+        Manage Bonus
+      </button>
+    </div>
+  </div>
+</div>

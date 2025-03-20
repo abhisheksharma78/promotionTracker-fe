@@ -1,0 +1,116 @@
+.bonus-list-container {
+  padding: 24px;
+
+  .header {
+    margin-bottom: 24px;
+
+    h1 {
+      margin-bottom: 16px;
+    }
+
+    .filters {
+      display: flex;
+      gap: 16px;
+
+      mat-form-field {
+        flex: 1;
+      }
+    }
+  }
+
+  .table-container {
+    position: relative;
+    min-height: 200px;
+    overflow: auto;
+    background: white;
+  }
+
+  mat-table {
+    width: 100%;
+
+    &.loading {
+      opacity: 0.5;
+    }
+  }
+
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+  }
+
+  .no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    color: rgba(0, 0, 0, 0.54);
+
+    mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+    }
+
+    p {
+      font-size: 16px;
+      margin: 0;
+    }
+  }
+
+  .mat-column-employeeId {
+    max-width: 120px;
+  }
+
+  .mat-column-performance {
+    max-width: 120px;
+    justify-content: center;
+  }
+
+  .mat-column-increment,
+  .mat-column-bonus {
+    max-width: 150px;
+
+    .increment-input,
+    .bonus-input {
+      width: 100px;
+      margin: -1em 0;
+
+      ::ng-deep .mat-form-field-wrapper {
+        padding-bottom: 0;
+      }
+
+      ::ng-deep .mat-form-field-infix {
+        padding: 0.5em 0;
+      }
+
+      ::ng-deep .mat-form-field-underline {
+        bottom: 0;
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 24px;
+
+    button {
+      min-width: 120px;
+
+      mat-spinner {
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+}
