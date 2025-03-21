@@ -2,202 +2,202 @@
 
 An Angular frontend application for managing employee promotions, appraisals, and bonuses.
 
-## Prerequisites
+## System Requirements
 
-- Node.js (v16 or higher)
-- npm (v7 or higher)
-- Angular CLI (`npm install -g @angular/cli`)
+1. **Core Requirements**
+   - Node.js >= 20.x
+   - npm >= 9.x
+   - Angular CLI: `npm install -g @angular/cli`
 
-## Project Setup
+2. **Development Tools**
+   - Git
+   - VS Code (recommended) with extensions:
+     - Angular Language Service
+     - TypeScript and JavaScript
+     - ESLint
+     - Prettier
 
-1. Clone the repository
-2. Install dependencies:
-```bash
-npm install
-```
+## Installation Methods
 
-3. Configure the environment:
+### Method 1: Docker Setup (Recommended)
 
-Edit `src/environments/environment.ts` to match your backend API URL:
-```typescript
-export const environment = {
-  production: false,
-  apiBaseUrl: 'http://localhost:3000/api'
-};
-```
+1. Install Docker and Docker Compose (if not already installed):
+   ```bash
+   # For Ubuntu/Debian
+   sudo apt-get update
+   sudo apt-get install docker.io docker-compose
 
-## Running the Application
+   # For macOS (using Homebrew)
+   brew install docker docker-compose
+   ```
 
-### Development Mode
-```bash
-npm start
-```
-The application will be available at http://localhost:4200
+2. Navigate to the backend directory and start all services:
+   ```bash
+   cd ../promotionTracker-be
+   docker-compose up -d
+   ```
 
-### Production Build
-```bash
-npm run build
-```
+This will:
+- Build and start the PostgreSQL database
+- Build and start the backend API
+- Build and serve the frontend application
+- Set up all necessary networking
 
-## Features
+The application will be available at:
+- Frontend: http://localhost
+- Backend API: http://localhost:3000/api
+- Database: localhost:5432
 
-- User Authentication
-  - Login/Logout functionality
-  - Role-based access control (USER, HOD, HR, ADMIN, CEO)
+### Method 2: Manual Setup
 
-- Dashboard
-  - Overview of pending appraisals
-  - Total employees count (Admin/HR)
-  - Pending reviews count (Admin/HR)
+1. **Install Node.js and npm**
+   ```bash
+   # Using nvm (recommended)
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+   nvm install 20
+   nvm use 20
+   ```
 
-- Appraisal Management
-  - Create new appraisals
-  - View appraisal history
-  - Update appraisal status
-  - Delete appraisals
+2. **Install Angular CLI**
+   ```bash
+   npm install -g @angular/cli
+   ```
 
-- Bonus Management (Admin/HR only)
-  - Manage employee bonuses
-  - Batch update bonuses
-  - Mark bonuses as paid
+3. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-## Default Users
+4. **Configure Environment**
+   Edit `src/environments/environment.ts`:
+   ```typescript
+   export const environment = {
+     production: false,
+     apiBaseUrl: 'http://localhost:3000/api'
+   };
+   ```
 
-The application comes with two default user accounts:
+5. **Start Development Server**
+   ```bash
+   npm start
+   ```
 
-1. Admin User
-   - Email: admin@example.com
-   - Password: admin123
-   - Role: ADMIN
-
-2. Test User
-   - Email: test@example.com
-   - Password: test123
-   - Role: USER
-
-## Project Structure
+## Application Structure
 
 ```
 src/
 ├── app/
 │   ├── auth/          # Authentication components
 │   ├── core/          # Core services and models
-│   ├── features/      # Feature modules (appraisal, bonus)
-│   └── shared/        # Shared components and modules
+│   ├── features/      # Feature modules
+│   └── shared/        # Shared components
 ├── environments/      # Environment configurations
 └── assets/           # Static assets
 ```
 
-## Authentication
+## Default Users
 
-The application uses JWT (JSON Web Token) for authentication. The token is:
-- Stored in localStorage
-- Automatically attached to API requests
-- Cleared on logout or session expiry
+The system comes with predefined users:
 
-## Role-Based Access
+1. **Admin User**
+   ```
+   Email: admin@example.com
+   Password: admin123
+   Role: ADMIN
+   ```
 
-Access to different features is controlled by user roles:
-- USER: Can view and create appraisals
-- HOD: Can manage appraisals for their department
-- HR: Can manage appraisals and bonuses
-- ADMIN: Full system access
-- CEO: Full system access
+2. **Test User**
+   ```
+   Email: test@example.com
+   Password: test123
+   Role: USER
+   ```
 
-## Role-Based Access and Default Credentials
+3. **HR Manager**
+   ```
+   Email: hr@example.com
+   Password: hr123
+   Role: HR
+   ```
 
-### Available Roles and Permissions
+## Role-Based Access Control
 
 1. **USER (Regular Employee)**
-   - Access to personal dashboard
-   - View and create personal appraisals
-   - View personal bonus history
-   - Example credentials:
-     ```
-     Email: test@example.com
-     Password: test123
-     ```
+   - View personal dashboard
+   - Create/view personal appraisals
+   - View bonus history
 
 2. **HOD (Head of Department)**
    - All USER permissions
-   - Department dashboard access
    - Manage department appraisals
    - View department metrics
 
-3. **HR (Human Resources)**
+3. **HR Manager**
    - All HOD permissions
-   - Access to HR dashboard
    - Manage all appraisals
-   - Manage bonus allocations
-   - Example credentials:
-     ```
-     Email: hr@example.com
-     Password: hr123
-     ```
+   - Manage bonus allocation
+   - Access HR dashboard
 
-4. **ADMIN (System Administrator)**
+4. **ADMIN**
    - Full system access
    - User management
    - System configuration
-   - Default admin credentials:
-     ```
-     Email: admin@example.com
-     Password: admin123
-     ```
+   - Access all features
 
 5. **CEO**
    - Full system access
    - Executive dashboard
    - Company-wide metrics
 
-### Protected Routes
+## Protected Routes
 - `/` - Dashboard (All roles)
-- `/appraisal` - Appraisal management (All roles with different permissions)
-- `/bonus` - Bonus management (ADMIN and HR only)
+- `/appraisal` - Appraisal management
+- `/bonus` - Bonus management (ADMIN/HR only)
 
-### Authentication Flow
-1. Users log in through `/auth/login`
-2. JWT token is stored in localStorage
-3. Token is automatically attached to API requests
-4. Role-based route guards protect access
+## Common Issues & Troubleshooting
 
-### User Session Management
-- Tokens expire after 24 hours
-- Session is cleared on logout
-- Unauthorized access redirects to login
-- Invalid tokens trigger automatic logout
+### Authentication Issues
+1. Verify backend is running
+2. Check environment.ts configuration
+3. Clear browser cache/localStorage
+4. Verify correct credentials
 
-## Development Guidelines
+### Access Denied
+1. Verify user role permissions
+2. Check token expiration
+3. Try logging out and back in
 
-### Adding New Features
-1. Create a new module under `src/app/features/`
-2. Add routing configuration
-3. Implement components and services
-4. Add to main routing configuration
+### Database Connection
+If using Docker:
+1. Check if postgres container is running
+2. Verify database credentials in docker-compose.yml
 
-### Style Guide
-- Follow Angular style guide
-- Use Material Design components
-- Implement responsive layouts
+If manual setup:
+1. Verify PostgreSQL is running
+2. Check database connection in backend .env file
 
 ## Testing
 
 ```bash
-# unit tests
+# Run unit tests
 npm run test
 
-# end-to-end tests
+# Run end-to-end tests
 npm run e2e
 ```
 
-## Common Issues
+## Building for Production
 
-### Authentication Issues
-- Ensure backend API is running
-- Check if JWT token is present in localStorage
-- Verify API URL in environment configuration
+```bash
+# Build
+npm run build
 
-### Access Denied
-- Verify user role permissions
-- Check if token is expired
-- Ensure proper route guards are in place
+# Serve using NGINX (if installed)
+sudo cp -r dist/* /var/www/html/
+```
+
+## Additional Resources
+
+- [Angular Documentation](https://angular.io/docs)
+- [Material Design Components](https://material.angular.io/components/categories)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)

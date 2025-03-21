@@ -3,7 +3,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { NotificationService } from '../../../core/services/notification.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule } from '@angular/material/sort';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -51,19 +51,42 @@ export class BonusListComponent implements OnInit, ComponentCanDeactivate {
   isLoading = false;
   isSaving = false;
   hasChanges = false;
+  filterForm: FormGroup;
 
   @ViewChild(MatSort) sort!: MatSort;
 
-  constructor(private notificationService: NotificationService) {
+  constructor(
+    private notificationService: NotificationService,
+    private fb: FormBuilder
+  ) {
     this.dataSource = new MatTableDataSource();
+    this.filterForm = this.fb.group({
+      departmentFilter: [{
+        value: '',
+        disabled: false
+      }],
+      searchFilter: [{
+        value: '',
+        disabled: false
+      }]
+    });
   }
 
   ngOnInit(): void {
     this.loadEmployees();
   }
 
+  setLoading(loading: boolean) {
+    this.isLoading = loading;
+    if (loading) {
+      this.filterForm.disable();
+    } else {
+      this.filterForm.enable();
+    }
+  }
+
   loadEmployees(): void {
-    this.isLoading = true;
+    this.setLoading(true);
     // Mock API call with timeout
     setTimeout(() => {
       const mockData: EmployeeBonus[] = [
@@ -101,7 +124,7 @@ export class BonusListComponent implements OnInit, ComponentCanDeactivate {
       }));
 
       this.dataSource.sort = this.sort;
-      this.isLoading = false;
+      this.setLoading(false);
     }, 1000);
   }
 

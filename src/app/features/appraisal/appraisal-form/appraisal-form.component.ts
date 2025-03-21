@@ -53,14 +53,38 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
     private notificationService: NotificationService
   ) {
     this.appraisalForm = this.fb.group({
-      employeeId: ['', Validators.required],
-      date: [new Date(), Validators.required],
-      performance: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
-      communication: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
-      teamwork: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
-      initiative: [null, [Validators.required, Validators.min(1), Validators.max(5)]],
-      comments: ['', Validators.required],
-      incrementPercentage: [null]
+      employeeId: ['', {
+        validators: [Validators.required],
+        disabled: false
+      }],
+      date: [{
+        value: new Date(),
+        disabled: false
+      }, Validators.required],
+      performance: [{
+        value: null,
+        disabled: false
+      }, [Validators.required, Validators.min(1), Validators.max(5)]],
+      communication: [{
+        value: null,
+        disabled: false
+      }, [Validators.required, Validators.min(1), Validators.max(5)]],
+      teamwork: [{
+        value: null,
+        disabled: false
+      }, [Validators.required, Validators.min(1), Validators.max(5)]],
+      initiative: [{
+        value: null,
+        disabled: false
+      }, [Validators.required, Validators.min(1), Validators.max(5)]],
+      comments: ['', {
+        validators: [Validators.required],
+        disabled: false
+      }],
+      incrementPercentage: [{
+        value: null,
+        disabled: false
+      }]
     });
   }
 
@@ -85,6 +109,18 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
     });
   }
 
+  setLoading(loading: boolean) {
+    this.isLoading = loading;
+    if (loading) {
+      this.appraisalForm.disable();
+    } else {
+      this.appraisalForm.enable();
+      if (!this.canSetIncrement) {
+        this.appraisalForm.get('incrementPercentage')?.disable();
+      }
+    }
+  }
+
   private checkFormChanges(): void {
     const currentValue = this.appraisalForm.getRawValue();
     this.hasChanges = Object.keys(this.initialFormValue).some(key =>
@@ -97,9 +133,9 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
   }
 
   private loadAppraisal(id: string): void {
-    this.isLoading = true;
+    this.setLoading(true);
     this.appraisalService.getAppraisal(id).pipe(
-      finalize(() => this.isLoading = false)
+      finalize(() => this.setLoading(false))
     ).subscribe({
       next: (appraisal) => {
         this.appraisalForm.patchValue({
@@ -120,7 +156,7 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
 
   onSubmit(): void {
     if (this.appraisalForm.valid && !this.isLoading) {
-      this.isLoading = true;
+      this.setLoading(true);
       const formValue = this.appraisalForm.getRawValue();
       const appraisal: Partial<Appraisal> = {
         ...formValue,
@@ -137,7 +173,7 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
         this.appraisalService.createAppraisal(appraisal);
 
       request.pipe(
-        finalize(() => this.isLoading = false)
+        finalize(() => this.setLoading(false))
       ).subscribe({
         next: () => {
           this.notificationService.success(

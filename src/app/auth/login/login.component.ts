@@ -37,15 +37,30 @@ export class LoginComponent {
     private notificationService: NotificationService
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      email: ['', { 
+        validators: [Validators.required, Validators.email],
+        disabled: false
+      }],
+      password: ['', {
+        validators: [Validators.required],
+        disabled: false
+      }]
     });
+  }
+
+  setLoading(loading: boolean) {
+    this.isLoading = loading;
+    if (loading) {
+      this.loginForm.disable();
+    } else {
+      this.loginForm.enable();
+    }
   }
 
   onSubmit(): void {
     if (this.loginForm.valid && !this.isLoading) {
-      this.isLoading = true;
-      const { email, password } = this.loginForm.value;
+      this.setLoading(true);
+      const { email, password } = this.loginForm.getRawValue();
 
       this.authService.login(email!, password!)
         .subscribe({
@@ -55,7 +70,7 @@ export class LoginComponent {
           },
           error: (error) => {
             this.notificationService.error(error.message || 'Login failed');
-            this.isLoading = false;
+            this.setLoading(false);
           }
         });
     } else {
