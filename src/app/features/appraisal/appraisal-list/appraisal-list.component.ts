@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Appraisal, AppraisalStatus } from '../../../core/models/appraisal';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { AppraisalService } from '../../../core/services/appraisal.service';
 import { Role } from '../../../core/models/role';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -11,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ConfirmDialogComponent } from '../../../shared/confirm-dialog/confirm-dialog.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-appraisal-list',
@@ -34,6 +36,7 @@ export class AppraisalListComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private appraisalService: AppraisalService,
     private notificationService: NotificationService,
     private dialog: MatDialog
   ) {}
@@ -47,25 +50,25 @@ export class AppraisalListComponent implements OnInit {
 
   loadAppraisals(): void {
     this.isLoading = true;
-    // Mock data loading with timeout - replace with actual API call
-    setTimeout(() => {
-      this.appraisals = [
-        {
-          id: '1',
-          employeeId: 'EMP001',
-          reviewerId: 'REV001',
-          date: new Date(),
-          performance: 4,
-          communication: 4,
-          teamwork: 4,
-          initiative: 3,
-          comments: 'Good performance overall',
-          status: AppraisalStatus.IN_REVIEW,
-          incrementPercentage: 10
-        }
-      ];
-      this.isLoading = false;
-    }, 1000);
+    const user = this.authService.getCurrentUser();
+
+    let appraisalRequest = this.appraisalService.getAppraisals();
+    if (user?.role === Role.USER) {
+      appraisalRequest = this.appraisalService.getEmployeeAppraisals(user.id);
+    } else if (user?.role === Role.HOD) {
+      appraisalRequest = this.appraisalService.getManagerAppraisals(user.id);
+    }
+
+    appraisalRequest.pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: (appraisals) => {
+        this.appraisals = appraisals;
+      },
+      error: () => {
+        this.notificationService.error('Failed to load appraisals');
+      }
+    });
   }
 
   canEditAppraisal(appraisal: Appraisal): boolean {
@@ -95,12 +98,17 @@ export class AppraisalListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.isLoading = true;
-        // Mock API call with timeout
-        setTimeout(() => {
-          this.appraisals = this.appraisals.filter(a => a.id !== appraisal.id);
-          this.notificationService.success('Appraisal deleted successfully');
-          this.isLoading = false;
-        }, 1000);
+        this.appraisalService.deleteAppraisal(appraisal.id).pipe(
+          finalize(() => this.isLoading = false)
+        ).subscribe({
+          next: () => {
+            this.appraisals = this.appraisals.filter(a => a.id !== appraisal.id);
+            this.notificationService.success('Appraisal deleted successfully');
+          },
+          error: () => {
+            this.notificationService.error('Failed to delete appraisal');
+          }
+        });
       }
     });
   }

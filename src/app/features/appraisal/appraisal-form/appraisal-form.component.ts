@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
+import { AppraisalService } from '../../../core/services/appraisal.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Appraisal, AppraisalStatus } from '../../../core/models/appraisal';
 import { Role } from '../../../core/models/role';
@@ -41,12 +42,14 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
   isLoading = false;
   ratings = [1, 2, 3, 4, 5];
   private initialFormValue: any;
+  private hasChanges = false;
 
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
+    private appraisalService: AppraisalService,
     private notificationService: NotificationService
   ) {
     this.appraisalForm = this.fb.group({
@@ -93,36 +96,26 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
     return this.hasChanges;
   }
 
-  private hasChanges = false;
-
   private loadAppraisal(id: string): void {
     this.isLoading = true;
-    // Mock API call with timeout
-    setTimeout(() => {
-      const mockAppraisal: Appraisal = {
-        id,
-        employeeId: 'EMP001',
-        reviewerId: 'REV001',
-        date: new Date(),
-        performance: 4,
-        communication: 4,
-        teamwork: 4,
-        initiative: 3,
-        comments: 'Good performance overall',
-        status: AppraisalStatus.IN_REVIEW,
-        incrementPercentage: 10
-      };
-
-      this.appraisalForm.patchValue({
-        ...mockAppraisal,
-        performance: mockAppraisal.performance.toString(),
-        communication: mockAppraisal.communication.toString(),
-        teamwork: mockAppraisal.teamwork.toString(),
-        initiative: mockAppraisal.initiative.toString()
-      });
-      this.initialFormValue = this.appraisalForm.getRawValue();
-      this.isLoading = false;
-    }, 1000);
+    this.appraisalService.getAppraisal(id).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: (appraisal) => {
+        this.appraisalForm.patchValue({
+          ...appraisal,
+          performance: appraisal.performance.toString(),
+          communication: appraisal.communication.toString(),
+          teamwork: appraisal.teamwork.toString(),
+          initiative: appraisal.initiative.toString()
+        });
+        this.initialFormValue = this.appraisalForm.getRawValue();
+      },
+      error: () => {
+        this.notificationService.error('Failed to load appraisal');
+        this.router.navigate(['/appraisal']);
+      }
+    });
   }
 
   onSubmit(): void {
@@ -139,15 +132,26 @@ export class AppraisalFormComponent implements OnInit, ComponentCanDeactivate {
         reviewerId: this.authService.getCurrentUser()?.id
       };
 
-      // Mock API call with timeout
-      setTimeout(() => {
-        console.log('Saving appraisal:', appraisal);
-        this.notificationService.success(
-          `Appraisal ${this.isEditMode ? 'updated' : 'created'} successfully`
-        );
-        this.isLoading = false;
-        this.router.navigate(['/appraisal']);
-      }, 1000);
+      const request = this.isEditMode ?
+        this.appraisalService.updateStatus(this.route.snapshot.params['id'], AppraisalStatus.IN_REVIEW) :
+        this.appraisalService.createAppraisal(appraisal);
+
+      request.pipe(
+        finalize(() => this.isLoading = false)
+      ).subscribe({
+        next: () => {
+          this.notificationService.success(
+            `Appraisal ${this.isEditMode ? 'updated' : 'created'} successfully`
+          );
+          this.hasChanges = false;
+          this.router.navigate(['/appraisal']);
+        },
+        error: () => {
+          this.notificationService.error(
+            `Failed to ${this.isEditMode ? 'update' : 'create'} appraisal`
+          );
+        }
+      });
     } else {
       this.notificationService.error('Please fill in all required fields correctly.');
     }

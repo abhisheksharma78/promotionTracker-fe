@@ -1,59 +1,203 @@
-# IncrementTracker
+# Promotion Tracker Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.4.
+An Angular frontend application for managing employee promotions, appraisals, and bonuses.
 
-## Development server
+## Prerequisites
 
-To start a local development server, run:
+- Node.js (v16 or higher)
+- npm (v7 or higher)
+- Angular CLI (`npm install -g @angular/cli`)
 
+## Project Setup
+
+1. Clone the repository
+2. Install dependencies:
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+3. Configure the environment:
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+Edit `src/environments/environment.ts` to match your backend API URL:
+```typescript
+export const environment = {
+  production: false,
+  apiBaseUrl: 'http://localhost:3000/api'
+};
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Running the Application
 
+### Development Mode
 ```bash
-ng generate --help
+npm start
+```
+The application will be available at http://localhost:4200
+
+### Production Build
+```bash
+npm run build
 ```
 
-## Building
+## Features
 
-To build the project run:
+- User Authentication
+  - Login/Logout functionality
+  - Role-based access control (USER, HOD, HR, ADMIN, CEO)
 
-```bash
-ng build
+- Dashboard
+  - Overview of pending appraisals
+  - Total employees count (Admin/HR)
+  - Pending reviews count (Admin/HR)
+
+- Appraisal Management
+  - Create new appraisals
+  - View appraisal history
+  - Update appraisal status
+  - Delete appraisals
+
+- Bonus Management (Admin/HR only)
+  - Manage employee bonuses
+  - Batch update bonuses
+  - Mark bonuses as paid
+
+## Default Users
+
+The application comes with two default user accounts:
+
+1. Admin User
+   - Email: admin@example.com
+   - Password: admin123
+   - Role: ADMIN
+
+2. Test User
+   - Email: test@example.com
+   - Password: test123
+   - Role: USER
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── auth/          # Authentication components
+│   ├── core/          # Core services and models
+│   ├── features/      # Feature modules (appraisal, bonus)
+│   └── shared/        # Shared components and modules
+├── environments/      # Environment configurations
+└── assets/           # Static assets
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Authentication
 
-## Running unit tests
+The application uses JWT (JSON Web Token) for authentication. The token is:
+- Stored in localStorage
+- Automatically attached to API requests
+- Cleared on logout or session expiry
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Role-Based Access
+
+Access to different features is controlled by user roles:
+- USER: Can view and create appraisals
+- HOD: Can manage appraisals for their department
+- HR: Can manage appraisals and bonuses
+- ADMIN: Full system access
+- CEO: Full system access
+
+## Role-Based Access and Default Credentials
+
+### Available Roles and Permissions
+
+1. **USER (Regular Employee)**
+   - Access to personal dashboard
+   - View and create personal appraisals
+   - View personal bonus history
+   - Example credentials:
+     ```
+     Email: test@example.com
+     Password: test123
+     ```
+
+2. **HOD (Head of Department)**
+   - All USER permissions
+   - Department dashboard access
+   - Manage department appraisals
+   - View department metrics
+
+3. **HR (Human Resources)**
+   - All HOD permissions
+   - Access to HR dashboard
+   - Manage all appraisals
+   - Manage bonus allocations
+   - Example credentials:
+     ```
+     Email: hr@example.com
+     Password: hr123
+     ```
+
+4. **ADMIN (System Administrator)**
+   - Full system access
+   - User management
+   - System configuration
+   - Default admin credentials:
+     ```
+     Email: admin@example.com
+     Password: admin123
+     ```
+
+5. **CEO**
+   - Full system access
+   - Executive dashboard
+   - Company-wide metrics
+
+### Protected Routes
+- `/` - Dashboard (All roles)
+- `/appraisal` - Appraisal management (All roles with different permissions)
+- `/bonus` - Bonus management (ADMIN and HR only)
+
+### Authentication Flow
+1. Users log in through `/auth/login`
+2. JWT token is stored in localStorage
+3. Token is automatically attached to API requests
+4. Role-based route guards protect access
+
+### User Session Management
+- Tokens expire after 24 hours
+- Session is cleared on logout
+- Unauthorized access redirects to login
+- Invalid tokens trigger automatic logout
+
+## Development Guidelines
+
+### Adding New Features
+1. Create a new module under `src/app/features/`
+2. Add routing configuration
+3. Implement components and services
+4. Add to main routing configuration
+
+### Style Guide
+- Follow Angular style guide
+- Use Material Design components
+- Implement responsive layouts
+
+## Testing
 
 ```bash
-ng test
+# unit tests
+npm run test
+
+# end-to-end tests
+npm run e2e
 ```
 
-## Running end-to-end tests
+## Common Issues
 
-For end-to-end (e2e) testing, run:
+### Authentication Issues
+- Ensure backend API is running
+- Check if JWT token is present in localStorage
+- Verify API URL in environment configuration
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Access Denied
+- Verify user role permissions
+- Check if token is expired
+- Ensure proper route guards are in place
