@@ -37,7 +37,7 @@ export class LoginComponent {
     private notificationService: NotificationService
   ) {
     this.loginForm = this.fb.group({
-      email: ['', { 
+      email: ['', {
         validators: [Validators.required, Validators.email],
         disabled: false
       }],
